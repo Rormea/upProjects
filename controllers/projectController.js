@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import ProjectM from "../models/ProjectModel.js";
+import TasksM from "../models/TasksModel.js";
 
 
 const getProjects = async (req, res) => {
@@ -34,7 +35,7 @@ const getOneProject = async (req, res) => {
     // validadr que el id sea en formato MONGOOSE ID
     const idFormatMongoose = mongoose.Types.ObjectId.isValid(id)
     if (idFormatMongoose == false) {
-        const error = new Error('id invalid format');
+        const error = new Error('invalid format  => idFormatMongoose');
         return res.status(404).json({ msg: error.message })
     };
     //Validar que el proyecto con ese id existe
@@ -48,7 +49,17 @@ const getOneProject = async (req, res) => {
         const error = new Error('You are not the owner of this project');
         return res.status(401).json({ msg: error.message })
     }
-    res.json(beProject);
+
+    // Obtener tareas asociadas al proyecto
+
+    const tasksInProject = await TasksM.find().where("projectRef").equals(beProject._id);
+
+    res.json(
+        {
+            beProject,
+            tasksInProject
+        }
+    );
 };
 
 
